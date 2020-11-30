@@ -5,6 +5,7 @@
 *.jpg
 *.gif
 *.exe
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
