@@ -1,30 +1,19 @@
 # Configurations
-import progressbar as pb
 
-# build data
-train_origin_path = '/data/shenzhonghai/dmo-captcha/train-origin'
-trainPath = '/data/shenzhonghai/dmo-captcha/dmo-captcha-part1-high'
-train_size = 8598
+# init
+dataPath = {
+'train-origin': '/home/shenzhonghai/car-insurance/data/VI_train.csv',
+'test-origin': '/home/shenzhonghai/car-insurance/data/VI_test.csv'
+}
 
-test_origin_path = '/data/shenzhonghai/dmo-captcha/test-origin'
-testPath = '/data/shenzhonghai/dmo-captcha/dmo-captcha-part0'
-test_size = 4122
+# train/test
+Total = 200
+batch_size = 5102
+test_batch_size = 1
+learning_rate = 0.0001
+weight_decay = 0.0005
+modelName = 'cnn3_AF'
+modelSavePath = '/data/shenzhonghai/car-insurance/models/'+modelName
+modelPath = '/data/shenzhonghai/car-insurance/models/'+modelName+'.tar'
+server = 2333
 
-modelSavePath = '/data/shenzhonghai/dmo-captcha/models/resnet_36_56_m30_co_high'
-modelPath = '/data/shenzhonghai/dmo-captcha/models/resnet_36_56_m30_co_clean6.tar'
-
-H = 112
-W = 112
-
-# train
-Total = 150
-batch_size = 128
-learning_rate = 0.001
-weight_decay = 0.00000
-dp = 0.00
-
-widgets = ['Data Loading: ', pb.Percentage(),
-           ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
-           ' ', pb.Timer(),
-           ' ', pb.ETA(),
-           ' ', pb.FileTransferSpeed()]
