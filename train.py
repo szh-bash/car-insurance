@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from model.cnn.net import Net
+from model.nn.net import Net
 from loss import ArcMarginProduct as ArcFace
 
 from config import learning_rate, batch_size, weight_decay, Total, modelSavePath, server
@@ -74,10 +74,11 @@ if __name__ == '__main__':
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
     arcFace = ArcFace(640, data.type).to(device)
     criterion = nn.CrossEntropyLoss().to(device)
-    optimizer = optim.Adam([{'params': net.parameters()},
-                            {'params': arcFace.parameters()}],
-                           lr=learning_rate, weight_decay=weight_decay)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[100000], gamma=0.1, last_epoch=-1)
+    # optimizer = optim.Adam([{'params': net.parameters()}],
+    #                         # {'params': arcFace.parameters()}],
+    #                        lr=learning_rate, weight_decay=weight_decay)
+    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[1500, 4000, 6000], gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
     if os.path.exists(modelSavePath+'.tar'):

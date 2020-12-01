@@ -6,7 +6,7 @@ import numpy as np
 import progressbar as pb
 
 sys.path.append("..")
-from model.cnn.net import Net
+from model.nn.net import Net
 from utils.misc import write_feat, write_meta
 from torch.utils.data import DataLoader
 from config import test_batch_size as batch_size
