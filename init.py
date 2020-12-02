@@ -5,6 +5,7 @@ import numpy as np
 from torch.utils.data import Dataset
 from config import dataPath
 from utils.dataProceeder import proceed
+import pandas as pd
 
 
 class DataReader(Dataset):
@@ -20,7 +21,10 @@ class DataReader(Dataset):
             exit(-1)
         print('data path:', filepath)
         self.rng = np.random
-        self.dataset, self.label = proceed(filepath, 0 if st == 'train' else 1)
+        dt = pd.read_csv(filepath, header=None, index_col=None).to_numpy()
+        self.dataset = dt[:, :10]
+        self.label = dt[:, 10]
+        # self.dataset, self.label = proceed(filepath, 0 if st == 'train' else 1)
         self.len = self.dataset.shape[0]
         self.type = 2
         print('Data mode: '+self.st)
@@ -45,4 +49,4 @@ class DataReader(Dataset):
 
 
 if __name__ == '__main__':
-    DataReader('train', 'train-origin')
+    DataReader('train', 'trainData')

@@ -8,7 +8,10 @@ from config import dataPath
 def proceed(path, md):
     print(path)
     df = pd.read_csv(path, header=[0], sep=',')
-    a = df.to_numpy()[:, 2-md:13-md*2]
+    print(df.shape)
+    a = df.to_numpy()
+    print(a[0])
+    a = a[:, 2-md:13-md*2]
     # print(a.shape)
     a[:, 0] = (a[:, 0] == 'Male') * 1.0
     # a[:, 1] = (a[:, 1] - 50.0) / 100
@@ -24,6 +27,12 @@ def proceed(path, md):
     a[:, 8] /= 163.0
     # print(max(a[:, 9]))
     a[:, 9] /= 299
+    a = np.array(a, dtype=float)
+    index = np.arange(a.shape[0])
+    np.random.shuffle(index)
+    a = a[index]
+    print(a.shape)
+    return a
     data = a[:, :10]
     # data = (data - 0.5)*2
     # print(data.shape)
@@ -38,8 +47,22 @@ def proceed(path, md):
 
 
 if __name__ == '__main__':
-    proceed(dataPath['train-origin'], 0)
-    proceed(dataPath['test-origin'], 1)
+    trainData = '/data/shenzhonghai/car-insurance/data/trainData.csv'
+    testData = '/data/shenzhonghai/car-insurance/data/testData.csv'
+    dt = proceed(dataPath['train-origin'], 0)
+    sz = dt.shape[0] // 5 * 4
+    train = dt[:sz]
+    test = dt[sz:]
+    print(train.shape, test.shape)
+    df = pd.DataFrame(train)
+    df.to_csv(trainData, header=False, index=False)
+    df = pd.DataFrame(test)
+    df.to_csv(testData, header=False, index=False)
+    # proceed(dataPath['test-origin'], 1)
+    df = pd.read_csv(trainData, header=None, index_col=None)
+    print(df.shape)
+    trainX = df.to_numpy()
+    print(trainX[:5])
     pass
 
 '''

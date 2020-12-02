@@ -24,12 +24,6 @@ def save_feat(ft, name_list, lim):
         idx = int(filename[loc[0]:loc[1]])
         __store[name + '/' + str(idx)] = ft[dx].data.numpy()
         __feats.append(ft[dx].data.numpy())
-        # if not os.path.exists(path+name):
-        #     os.mkdir(path+name)
-        # ftx = ft[dx].data.numpy()
-        # ftx = ftx.tolist()
-        # pt = pd.DataFrame(data=ftx)
-        # pt.to_csv(path+name+'/'+str(idx), mode='w', index=None, header=None)
     return __store, __feats
 
 

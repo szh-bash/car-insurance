@@ -3,7 +3,9 @@
 # init
 dataPath = {
 'train-origin': '/home/shenzhonghai/car-insurance/data/VI_train.csv',
-'test-origin': '/home/shenzhonghai/car-insurance/data/VI_test.csv'
+'test-origin': '/home/shenzhonghai/car-insurance/data/VI_test.csv',
+'trainData': '/home/shenzhonghai/car-insurance/data/trainData.csv',
+'testData': '/home/shenzhonghai/car-insurance/data/testData.csv',
 }
 
 # train/test
