@@ -7,7 +7,6 @@ import progressbar as pb
 
 sys.path.append("..")
 from model.nn.net import Net
-from utils.misc import write_feat, write_meta
 from torch.utils.data import DataLoader
 from config import test_batch_size as batch_size
 from loss import ArcMarginProduct as ArcFace
@@ -39,45 +38,35 @@ def get(filepath, data):
     model = Net().cuda()
     model.load_state_dict({k.replace('module.', ''): v for k, v in checkpoint['net'].items()})
     model.eval()  # DropOut/BN
-    arc = ArcFace(40, data.type).to(device)
-    arc.load_state_dict({k.replace('module.', ''): v for k, v in checkpoint['arc'].items()})
+    # arc = ArcFace(40, data.type).to(device)
+    # arc.load_state_dict({k.replace('module.', ''): v for k, v in checkpoint['arc'].items()})
     model.eval()  # DropOut/BN
 
     # get feat
     print('Calculating Feature Map...')
-    Total = (data.len - 1) / batch_size + 1
+    total = (data.len - 1) / batch_size + 1
     widgets = [' ', pb.Percentage(),
                ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
                ' ', pb.Timer(),
                ' ', pb.ETA(),
                ' ', pb.FileTransferSpeed()]
-    pgb = pb.ProgressBar(widgets=widgets, maxval=Total).start()
+    # pgb = pb.ProgressBar(widgets=widgets, maxval=total).start()
+    acc = 0
     for i, (inputs, labels, names) in enumerate(data_loader):
         feat = model(inputs.to(device))
-        res = save_feat(feat, names, labels.size(0))
-        _store.update(res[0])
-        _feats += res[1]
-        pgb.update(i)
-    pgb.finish()
+        # res = save_feat(feat, names, labels.size(0))
+        # _store.update(res[0])
+        # _feats += res[1]
+        print(feat, (labels.to(device)))
+        print(len(labels), torch.sum(labels))
+        acc += torch.sum(torch.argmax(feat, dim=1) == (labels.to(device))).float()
+        # pgb.update(i)
+    acc /= data.len
+    # pgb.finish()
     print('epoch: %d\niters: %d\nloss: %.3lf\ntrain_acc: %.3lf' %
           (checkpoint['epoch'],
            checkpoint['iter'],
            checkpoint['loss'],
            checkpoint['acc']
            ))
-    return _store, _feats
-
-
-if __name__ == '__main__':
-    ft_path = '/dev/shm/DATA/wf-mtcnn-vgg16/features.bin'
-    labels_path = '/dev/shm/DATA/wf-mtcnn-vgg16/labels.meta'
-    # print('Feature saved to %s' % ft_path)
-    store, feats = get()
-    feats = np.array(feats)
-    write_feat(ft_path, feats)
-    print('Label saved to %s' % labels_path)
-    # lbs = data.label.astype(int).tolist()
-    # pt = pd.DataFrame(data=lbs)
-    # pt.to_csv(labels_path, mode='w', index=None, header=None)
-    # print(lbs, file=f)
-    # write_meta(labels_path, lbs)
+    return acc

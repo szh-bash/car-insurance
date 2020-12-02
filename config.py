@@ -11,7 +11,7 @@ dataPath = {
 # train/test
 Total = 12
 batch_size = 512
-test_batch_size = 1
+test_batch_size = 512
 learning_rate = 1
 weight_decay = 0.0005
 modelName = 'cnn3_AF'
