@@ -12,7 +12,7 @@ import time
 
 
 def calc(filepath):
-    _acc, _res = get(filepath, data)
+    _acc, _res, _threshold = get(filepath, data)
     print("Test ACC: %.3f" % (_acc*100))
     return _acc
 
@@ -46,11 +46,11 @@ if __name__ == '__main__':
     data = DataReader("ftest", "testAll")
     # test_server()
     # acc, res = get(modelPath, data)
-    acc, res = get(modelSavePath+"_5.tar", data)
+    acc, res, threshold = get(modelSavePath+"_5.tar", data)
     # res = np.zeros(res.shape[0])
-    print(res.sum())
+    print(acc, (res > 0.95).sum(), threshold)
     js = {}
     for i in range(res.shape[0]):
-        js[str(i+1)] = int(res[i])
+        js[str(i+1)] = int(res[i] > 0.95)
     with open('submission.json', 'w') as file_obj:
         json.dump(js, file_obj)
