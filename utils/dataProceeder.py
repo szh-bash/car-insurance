@@ -7,9 +7,9 @@ from config import dataPath
 
 def proceed(path, md):
     print(path)
-    df = pd.read_csv(path, header=[0], sep=',')
-    print(df.shape)
-    a = df.to_numpy()
+    _df = pd.read_csv(path, header=[0], sep=',')
+    print(_df.shape)
+    a = _df.to_numpy()
     print(a[0])
     a = a[:, 2-md:13-md*2]
     # print(a.shape)
@@ -18,7 +18,7 @@ def proceed(path, md):
     a[:, 1] /= 100
     # print(max(a[:, 3]))
     a[:, 3] = a[:, 3] / 52.0
-    g = {'> 2 Years': 1.0, '1-2 Year': 2/3, '< 1 Year': 0.0}
+    g = {'> 2 Years': 1.0, '1-2 Year': 1/10, '< 1 Year': 0.0}
     a[:, 5] = [g[x] for x in a[:, 5]]
     a[:, 6] = (a[:, 6] == 'Yes') * 1.0
     # print(max(a[:, 7]))
@@ -26,19 +26,26 @@ def proceed(path, md):
     # print(max(a[:, 8]))
     a[:, 8] /= 163.0
     # print(max(a[:, 9]))
+    # print(np.sort(a[:, 9])[-250000])
     a[:, 9] /= 299
     a = np.array(a, dtype=float)
-    index = np.arange(a.shape[0])
-    np.random.shuffle(index)
-    a = a[index]
-    print(a.shape)
-    return a
-    data = a[:, :10]
+    # a[:, :-1] = (a[:, :-1] - 0.5) * 2
+    b = np.delete(a, [2, 7, 9], axis=1)
+    print(b.shape)
+    print(b[0])
+    # return b
+    b = b[b[:, -1].argsort()]
+    tot = int(np.sum(b[:, [-1]]))
+    b = b[-tot*2:]
+    # 53, 66, 50, 58, 76, 66, 76.6, 50, 64.5, 50
+    #  0,  1,  2,  3,  4,  5,    6,  7,    8,  9
+    return b
+    data = b[:, :10]
     # data = (data - 0.5)*2
     # print(data.shape)
     # print(data[:10])
     if not md:
-        label = a[:, -1].reshape(-1)
+        label = b[:, -1].reshape(-1)
         # print(label.shape)
         # print(label[:10])
     else:
@@ -47,10 +54,23 @@ def proceed(path, md):
 
 
 if __name__ == '__main__':
-    trainData = '/data/shenzhonghai/car-insurance/data/trainData.csv'
-    testData = '/data/shenzhonghai/car-insurance/data/testData.csv'
+    # filepath = dataPath['trainAll']
+    # dt = proceed(dataPath['train-origin'], 0)
+    # # filepath = dataPath['testAll']
+    # # dt = proceed(dataPath['test-origin'], 1)
+    # df = pd.DataFrame(dt)
+    # df.to_csv(filepath, header=False, index=False)
+    # exit(0)
+
+    trainData = dataPath['trainData']
+    testData = dataPath['testData']
     dt = proceed(dataPath['train-origin'], 0)
-    sz = dt.shape[0] // 5 * 4
+    index = np.arange(dt.shape[0])
+    np.random.shuffle(index)
+    dt = dt[index]
+    print(dt.shape)
+    # sz = dt.shape[0] // 5 * 4
+    sz = dt.shape[0]
     train = dt[:sz]
     test = dt[sz:]
     print(train.shape, test.shape)

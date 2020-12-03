@@ -52,15 +52,21 @@ def get(filepath, data):
                ' ', pb.FileTransferSpeed()]
     # pgb = pb.ProgressBar(widgets=widgets, maxval=total).start()
     acc = 0
+    res = np.zeros(data.len)
     for i, (inputs, labels, names) in enumerate(data_loader):
         feat = model(inputs.to(device))
         # res = save_feat(feat, names, labels.size(0))
         # _store.update(res[0])
         # _feats += res[1]
-        print(feat, (labels.to(device)))
-        print(len(labels), torch.sum(labels))
-        acc += torch.sum(torch.argmax(feat, dim=1) == (labels.to(device))).float()
+        # print(feat, (labels.to(device)))
+        # print(len(labels), torch.sum(labels))
+        lb = (feat.cpu().detach().numpy()) > 0.5
+        lb = np.array(lb, dtype=int)
+        # print(lb, labels)
+        acc += np.sum(lb == labels.numpy())
+        res[names] = lb
         # pgb.update(i)
+    res = np.array(res, dtype=int)
     acc /= data.len
     # pgb.finish()
     print('epoch: %d\niters: %d\nloss: %.3lf\ntrain_acc: %.3lf' %
@@ -69,4 +75,4 @@ def get(filepath, data):
            checkpoint['loss'],
            checkpoint['acc']
            ))
-    return acc
+    return acc, res

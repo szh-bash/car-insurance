@@ -1,6 +1,7 @@
 import os
 import time
 import socket
+import numpy as np
 
 import torch
 import torch.nn as nn
@@ -16,7 +17,8 @@ from init import DataReader
 
 def get_label(output):
     # print(output.shape)
-    return torch.argmax(output, dim=1)
+    # return torch.argmax(output, dim=1)
+    return output > 0.5
 
 
 def get_loss(ft, target):
@@ -73,12 +75,13 @@ if __name__ == '__main__':
     net.to(device)
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
     arcFace = ArcFace(640, data.type).to(device)
-    criterion = nn.CrossEntropyLoss().to(device)
-    # optimizer = optim.Adam([{'params': net.parameters()}],
-    #                         # {'params': arcFace.parameters()}],
-    #                        lr=learning_rate, weight_decay=weight_decay)
-    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[1500, 4000, 6000], gamma=0.1, last_epoch=-1)
+    # criterion = nn.CrossEntropyLoss(weight=torch.from_numpy(np.array([1, 7])).float()).to(device)
+    criterion = nn.BCEWithLogitsLoss().to(device)
+    optimizer = optim.Adam([{'params': net.parameters()}],
+                            # {'params': arcFace.parameters()}],
+                           lr=learning_rate, weight_decay=weight_decay)
+    # optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[], gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
     if os.path.exists(modelSavePath+'.tar'):
@@ -106,6 +109,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = iter_start
+    state = {}
     for epoch in range(epoch_start, Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
@@ -121,12 +125,12 @@ if __name__ == '__main__':
             feat = net(train_x)
             # feat = arcFace(feat, train_y)
             feat.register_hook(save_grad('feat_grad'))
-            loss = criterion(feat, train_y)
+            loss = criterion(feat, train_y.float())
             # loss = get_loss(feat, train_y)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            scheduler.step()
+            # scheduler.step()
             tt = time.time() - batch_train_time
             train_time = train_time + tt
 
@@ -160,7 +164,8 @@ if __name__ == '__main__':
                  'iter': iterations,
                  'loss': loss_bc,
                  'acc': acc_bc}
-        save_test(state, modelSavePath+'.tar')
+        save_test(state, modelSavePath+'_'+str(epoch)+'.tar')
 
+    torch.save(state, modelSavePath+'.tar')
     save_test(None, 'exit')
     print('fydnb!')

@@ -22,8 +22,12 @@ class DataReader(Dataset):
         print('data path:', filepath)
         self.rng = np.random
         dt = pd.read_csv(filepath, header=None, index_col=None).to_numpy()
-        self.dataset = dt[:, :10]
-        self.label = dt[:, 10]
+        if st != 'ftest':
+            self.dataset = dt[:, :-1]
+            self.label = dt[:, -1]
+        else:
+            self.dataset = dt
+            self.label = np.zeros(self.dataset.shape[0])
         # self.dataset, self.label = proceed(filepath, 0 if st == 'train' else 1)
         self.len = self.dataset.shape[0]
         self.type = 2
@@ -39,7 +43,7 @@ class DataReader(Dataset):
     def __getitem__(self, index):
         if self.st == 'train':
             return self.x[index], self.y[index]
-        elif self.st == 'test':
+        elif self.st == 'test' or self.st == 'ftest':
             return self.x[index], self.y[index], index
         else:
             exit(-1)
