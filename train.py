@@ -81,7 +81,7 @@ if __name__ == '__main__':
                             # {'params': arcFace.parameters()}],
                            lr=learning_rate, weight_decay=weight_decay)
     # optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[1000, 2000], gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
     if os.path.exists(modelSavePath+'.tar'):
@@ -130,7 +130,7 @@ if __name__ == '__main__':
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            # scheduler.step()
+            scheduler.step()
             tt = time.time() - batch_train_time
             train_time = train_time + tt
 

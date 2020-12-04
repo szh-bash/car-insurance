@@ -11,12 +11,12 @@ dataPath = {
 }
 
 # train/test
-Total = 30
-batch_size = 40
+Total = 20
+batch_size = 512  # 1:1 - 40 7:7 - 512
 test_batch_size = 512
 learning_rate = 0.001
 weight_decay = 0.0005
-modelName = 'cnn3_AF'
+modelName = 'nn3_oh_vage_dup'
 modelSavePath = '/data/shenzhonghai/car-insurance/models/'+modelName
 modelPath = '/data/shenzhonghai/car-insurance/models/'+modelName+'.tar'
 server = 2333

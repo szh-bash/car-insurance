@@ -5,21 +5,34 @@ from config import dataPath
 # data-info: https://shimo.im/docs/VtgxWKkv36r3QTyr/read
 
 
-def proceed(path, md):
+def proceed(path, md, rg):
     print(path)
     _df = pd.read_csv(path, header=[0], sep=',')
     print(_df.shape)
     a = _df.to_numpy()
     print(a[0])
     a = a[:, 2-md:13-md*2]
+    if md == 0:
+        lb = a[:, -1].copy()
+        a = np.delete(a, [a.shape[1]-1], axis=1)
+
     # print(a.shape)
     a[:, 0] = (a[:, 0] == 'Male') * 1.0
     # a[:, 1] = (a[:, 1] - 50.0) / 100
     a[:, 1] /= 100
+
     # print(max(a[:, 3]))
-    a[:, 3] = a[:, 3] / 52.0
-    g = {'> 2 Years': 1.0, '1-2 Year': 1/10, '< 1 Year': 0.0}
-    a[:, 5] = [g[x] for x in a[:, 5]]
+    # a[:, 3] = a[:, 3] / 52.0
+    sc = np.array(a[:, 3]-1, dtype=int)
+    reg = np.eye(a.shape[0], 52)[sc]
+    print(reg.shape, a.shape)
+    a = np.concatenate((a, reg), axis=1)
+
+    g = {'> 2 Years': 0, '1-2 Year': 1, '< 1 Year': 2}
+    sc = np.array([g[x] for x in a[:, 5]])
+    vage = np.eye(a.shape[0], 3)[sc]
+    a = np.concatenate((a, vage), axis=1)
+
     a[:, 6] = (a[:, 6] == 'Yes') * 1.0
     # print(max(a[:, 7]))
     a[:, 7] /= 540165.0
@@ -28,43 +41,50 @@ def proceed(path, md):
     # print(max(a[:, 9]))
     # print(np.sort(a[:, 9])[-250000])
     a[:, 9] /= 299
-    a = np.array(a, dtype=float)
     # a[:, :-1] = (a[:, :-1] - 0.5) * 2
-    b = np.delete(a, [2, 7, 9], axis=1)
+    b = np.delete(a, [3, 5, 2, 7, 9], axis=1)
+    b = np.array(b, dtype=float)
+    if md == 0:
+        print(b.shape, lb.shape)
+        b = np.concatenate((b, lb.reshape(lb.shape[0], -1)), axis=1)
     print(b.shape)
     print(b[0])
-    # return b
+    if rg:
+        return b
     b = b[b[:, -1].argsort()]
     tot = int(np.sum(b[:, [-1]]))
-    b = b[-tot*2:]
+    indx = np.arange(b.shape[0]-tot)
+    np.random.shuffle(indx)
+    b[:-tot] = b[indx]
+    # indx = np.arange(tot)
+    # np.random.shuffle(indx)
+    # b[-tot:] = b[indx+b.shape[0]-tot]
+    # b = b[-tot*2:]
+    sc = np.ones(b.shape[0])
+    sc[-tot:] = 7
+    b = np.repeat(b, sc.tolist(), axis=0)
+    print(b.shape)
     # 53, 66, 50, 58, 76, 66, 76.6, 50, 64.5, 50
     #  0,  1,  2,  3,  4,  5,    6,  7,    8,  9
     return b
-    data = b[:, :10]
-    # data = (data - 0.5)*2
-    # print(data.shape)
-    # print(data[:10])
-    if not md:
-        label = b[:, -1].reshape(-1)
-        # print(label.shape)
-        # print(label[:10])
-    else:
-        label = np.zeros(data.shape[0])
-    return data, label
+
+
+def build_test():
+    # filepath = dataPath['trainAll']
+    # dts = proceed(dataPath['train-origin'], 0, 1)
+    filepath = dataPath['testAll']
+    dts = proceed(dataPath['test-origin'], 1, 1)
+    dff = pd.DataFrame(dts)
+    dff.to_csv(filepath, header=False, index=False)
 
 
 if __name__ == '__main__':
-    # filepath = dataPath['trainAll']
-    # dt = proceed(dataPath['train-origin'], 0)
-    # # filepath = dataPath['testAll']
-    # # dt = proceed(dataPath['test-origin'], 1)
-    # df = pd.DataFrame(dt)
-    # df.to_csv(filepath, header=False, index=False)
+    # build_test()
     # exit(0)
 
     trainData = dataPath['trainData']
     testData = dataPath['testData']
-    dt = proceed(dataPath['train-origin'], 0)
+    dt = proceed(dataPath['train-origin'], 0, 0)
     index = np.arange(dt.shape[0])
     np.random.shuffle(index)
     dt = dt[index]
@@ -82,7 +102,7 @@ if __name__ == '__main__':
     df = pd.read_csv(trainData, header=None, index_col=None)
     print(df.shape)
     trainX = df.to_numpy()
-    print(trainX[:5])
+    print(trainX[0])
     pass
 
 '''
