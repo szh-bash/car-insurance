@@ -49,7 +49,7 @@ def get(filepath, data):
         else:
             pre = tp/(tp+fp)
         recall = tp/lbs.sum()
-        if pre>0 and recall>0 and 2/(1/pre+1/recall) > p:
+        if pre > 0 and recall > 0 and 2/(1/pre+1/recall) > p:
             p = 2/(1/pre+1/recall)
             threshold = x
     acc = ((res > 0.5) == lbs).sum()/lbs.shape[0]*100

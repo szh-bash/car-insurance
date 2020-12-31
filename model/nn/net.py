@@ -8,7 +8,7 @@ class Net(nn.Module):
 
     def __init__(self):
         super(Net, self).__init__()
-        self.fc1 = nn.Linear(60, 256)
+        self.fc1 = nn.Linear(159, 256)
         self.fc2 = nn.Linear(256, 128)
         self.fc3 = nn.Linear(128, 1)
         self.drop_out1 = nn.Dropout(p=0.2)

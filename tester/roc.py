@@ -43,18 +43,18 @@ def test_server():
 if __name__ == '__main__':
     # data = DataReader("test", "testData")
     # data = DataReader("test", "trainData")
-    # data = DataReader("test", "trainAll")
-    data = DataReader("ftest", "testAll")
+    data = DataReader("test", "trainAll")
+    # data = DataReader("ftest", "testAll")
     # test_server()
     # acc, res = get(modelPath, data)
     acc, res, lbs, threshold, p = get(modelSavePath+"_5.tar", data)
     # res = np.zeros(res.shape[0])
     print("test_acc: ", acc)
     print("f1-score: ", p)
-    print((res > 0.115).sum(), (res > 0.715).sum(), (res > threshold).sum(), ((res>threshold)*lbs).sum(), threshold)
+    print((res > 0.648).sum(), (res > threshold).sum(), ((res > threshold)*lbs).sum(), threshold)
     js = {}
     for i in range(res.shape[0]):
-        js[str(i)] = int(res[i] > 0.715)
+        js[str(i)] = int(res[i] > 0.648)
     with open('submission.json', 'w') as file_obj:
         json.dump(js, file_obj)
 

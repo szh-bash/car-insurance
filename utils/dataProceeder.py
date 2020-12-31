@@ -5,7 +5,7 @@ from config import dataPath
 # data-info: https://shimo.im/docs/VtgxWKkv36r3QTyr/read
 
 
-def proceed(path, md, rg):
+def proceed(path, md, rg, mini=True):
     print(path)
     _df = pd.read_csv(path, header=[0], sep=',')
     print(_df.shape)
@@ -20,6 +20,9 @@ def proceed(path, md, rg):
     a[:, 0] = (a[:, 0] == 'Male') * 1.0
     # a[:, 1] = (a[:, 1] - 50.0) / 100
     a[:, 1] /= 100
+    # sc = np.array([int(x) for x in a[:, 1]])
+    # age = np.eye(a.shape[0], 100)[sc]
+    # a = np.concatenate((a, age), axis=1)
 
     # print(max(a[:, 3]))
     # a[:, 3] = a[:, 3] / 52.0
@@ -56,13 +59,17 @@ def proceed(path, md, rg):
     indx = np.arange(b.shape[0]-tot)
     np.random.shuffle(indx)
     b[:-tot] = b[indx]
-    # indx = np.arange(tot)
-    # np.random.shuffle(indx)
-    # b[-tot:] = b[indx+b.shape[0]-tot]
-    # b = b[-tot*2:]
-    sc = np.ones(b.shape[0])
-    sc[-tot:] = 7
-    b = np.repeat(b, sc.tolist(), axis=0)
+    if mini:
+        print("hello")
+        indx = np.arange(tot)
+        np.random.shuffle(indx)
+        b[-tot:] = b[indx+b.shape[0]-tot]
+        b = b[-tot*2:]
+        b = b[int(b.shape[0]*0.4):int(b.shape[0]*0.6)]
+    else:
+        sc = np.ones(b.shape[0])
+        sc[-tot:] = 7
+        b = np.repeat(b, sc.tolist(), axis=0)
     print(b.shape)
     # 53, 66, 50, 58, 76, 66, 76.6, 50, 64.5, 50
     #  0,  1,  2,  3,  4,  5,    6,  7,    8,  9
@@ -70,8 +77,10 @@ def proceed(path, md, rg):
 
 
 def build_test():
-    # filepath = dataPath['trainAll']
-    # dts = proceed(dataPath['train-origin'], 0, 1)
+    filepath = dataPath['trainAll']
+    dts = proceed(dataPath['train-origin'], 0, 1)
+    dff = pd.DataFrame(dts)
+    dff.to_csv(filepath, header=False, index=False)
     filepath = dataPath['testAll']
     dts = proceed(dataPath['test-origin'], 1, 1)
     dff = pd.DataFrame(dts)
@@ -79,11 +88,11 @@ def build_test():
 
 
 if __name__ == '__main__':
-    # build_test()
-    # exit(0)
+    build_test()
+    exit(0)
 
-    trainData = dataPath['trainData']
-    testData = dataPath['testData']
+    trainData = dataPath['trainDataMini']
+    testData = dataPath['testDataMini']
     dt = proceed(dataPath['train-origin'], 0, 0)
     index = np.arange(dt.shape[0])
     np.random.shuffle(index)
